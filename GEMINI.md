@@ -5,7 +5,7 @@
 - **Language**: JavaScript/TypeScript
 - **Version Control**: Git & GitHub
 
-## Cursor Rules
+## Gemini Rules
 - Always format Git commits using Conventional Commits guidelines (e.g., `feat:`, `fix:`, `docs:`, `build:`).
 - Keep responses concise and focused on the deliverables.
 - Use explicit markdown links for files and resources.
