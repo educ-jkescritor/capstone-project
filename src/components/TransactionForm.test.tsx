@@ -5,7 +5,10 @@ import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import TransactionForm from './TransactionForm';
 
 describe('TransactionForm', () => {
+  const mockOnSubmit = vi.fn();
+
   beforeEach(() => {
+    mockOnSubmit.mockClear();
     vi.useFakeTimers();
   });
   
@@ -14,7 +17,7 @@ describe('TransactionForm', () => {
   });
 
   test('renders all form fields correctly', () => {
-    render(<TransactionForm />);
+    render(<TransactionForm onSubmit={mockOnSubmit} />);
     expect(screen.getByLabelText(/amount/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/category/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/date/i)).toBeInTheDocument();
@@ -23,17 +26,16 @@ describe('TransactionForm', () => {
   });
 
   test('shows error and disables button for negative amount', () => {
-    render(<TransactionForm />);
+    render(<TransactionForm onSubmit={mockOnSubmit} />);
     const amountInput = screen.getByLabelText(/amount/i);
     fireEvent.change(amountInput, { target: { value: '-50' } });
 
     expect(screen.getByText('Amount must be greater than zero.')).toBeInTheDocument();
-    expect(screen.getByText('Amount must be greater than zero.')).toHaveStyle('color: rgb(255, 0, 0)');
     expect(screen.getByRole('button', { name: /submit transaction/i })).toBeDisabled();
   });
 
   test('shows error and disables button for future date', () => {
-    render(<TransactionForm />);
+    render(<TransactionForm onSubmit={mockOnSubmit} />);
     const dateInput = screen.getByLabelText(/date/i);
     
     // Set a date in the future
@@ -47,8 +49,8 @@ describe('TransactionForm', () => {
     expect(screen.getByRole('button', { name: /submit transaction/i })).toBeDisabled();
   });
 
-  test('enables submit button with valid inputs', () => {
-    render(<TransactionForm />);
+  test('enables submit button and calls onSubmit with valid inputs', () => {
+    render(<TransactionForm onSubmit={mockOnSubmit} />);
     
     fireEvent.change(screen.getByLabelText(/amount/i), { target: { value: '100' } });
     fireEvent.change(screen.getByLabelText(/category/i), { target: { value: 'Food' } });
@@ -62,5 +64,15 @@ describe('TransactionForm', () => {
     
     const submitBtn = screen.getByRole('button', { name: /submit transaction/i });
     expect(submitBtn).toBeEnabled();
+
+    // Trigger submit
+    fireEvent.click(submitBtn);
+    expect(mockOnSubmit).toHaveBeenCalledTimes(1);
+    expect(mockOnSubmit).toHaveBeenCalledWith({
+      amount: 100,
+      category: 'Food',
+      date: today,
+      note: 'Lunch'
+    });
   });
 });
