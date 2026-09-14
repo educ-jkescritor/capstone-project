@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 export interface TransactionFormData {
+  type: 'income' | 'expense';
   amount: number;
   category: string;
   date: string;
@@ -12,6 +13,7 @@ interface TransactionFormProps {
 }
 
 export default function TransactionForm({ onSubmit }: TransactionFormProps) {
+  const [type, setType] = useState<'income' | 'expense'>('expense');
   const [amount, setAmount] = useState<number | ''>('');
   const [category, setCategory] = useState<string>('');
   const [date, setDate] = useState<string>('');
@@ -32,7 +34,6 @@ export default function TransactionForm({ onSubmit }: TransactionFormProps) {
     if (date) {
       const selectedDate = new Date(date);
       const today = new Date();
-      // Reset hours to compare purely by date
       today.setHours(0, 0, 0, 0);
       selectedDate.setHours(0, 0, 0, 0);
       
@@ -60,15 +61,16 @@ export default function TransactionForm({ onSubmit }: TransactionFormProps) {
     
     setIsSubmitting(true);
     
-    // Explicitly pass data back to parent
     onSubmit({
+      type,
       amount: Number(amount),
       category,
       date,
       note
     });
 
-    // Reset form
+    // Reset form to defaults
+    setType('expense');
     setAmount('');
     setCategory('');
     setDate('');
@@ -80,7 +82,35 @@ export default function TransactionForm({ onSubmit }: TransactionFormProps) {
   const labelStyle = { display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.875rem' };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      
+      {/* Type Toggle */}
+      <div>
+        <label style={labelStyle}>Transaction Type</label>
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '0.25rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}>
+            <input 
+              type="radio" 
+              name="type" 
+              value="expense" 
+              checked={type === 'expense'} 
+              onChange={() => setType('expense')} 
+            />
+            Expense
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}>
+            <input 
+              type="radio" 
+              name="type" 
+              value="income" 
+              checked={type === 'income'} 
+              onChange={() => setType('income')} 
+            />
+            Income
+          </label>
+        </div>
+      </div>
+
       <div>
         <label htmlFor="amount" style={labelStyle}>Amount</label>
         <input 
@@ -104,10 +134,21 @@ export default function TransactionForm({ onSubmit }: TransactionFormProps) {
           required
         >
           <option value="" disabled>Select a category</option>
-          <option value="Food">Food</option>
-          <option value="Transport">Transport</option>
-          <option value="Utilities">Utilities</option>
-          <option value="Entertainment">Entertainment</option>
+          {type === 'expense' ? (
+            <>
+              <option value="Food">Food</option>
+              <option value="Transport">Transport</option>
+              <option value="Utilities">Utilities</option>
+              <option value="Entertainment">Entertainment</option>
+            </>
+          ) : (
+            <>
+              <option value="Salary">Salary</option>
+              <option value="Freelance">Freelance</option>
+              <option value="Gift">Gift</option>
+              <option value="Investments">Investments</option>
+            </>
+          )}
         </select>
       </div>
 
@@ -132,7 +173,7 @@ export default function TransactionForm({ onSubmit }: TransactionFormProps) {
           value={note} 
           style={{...inputStyle, resize: 'vertical'}}
           onChange={(e) => setNote(e.target.value)}
-          rows={3}
+          rows={2}
         />
       </div>
 
@@ -141,7 +182,7 @@ export default function TransactionForm({ onSubmit }: TransactionFormProps) {
         disabled={!isFormValid || isSubmitting}
         style={{
           padding: '0.75rem',
-          backgroundColor: (!isFormValid || isSubmitting) ? '#d1d5db' : '#2563eb',
+          backgroundColor: (!isFormValid || isSubmitting) ? '#d1d5db' : (type === 'income' ? '#059669' : '#dc2626'),
           color: (!isFormValid || isSubmitting) ? '#6b7280' : 'white',
           border: 'none',
           borderRadius: '4px',
@@ -149,7 +190,7 @@ export default function TransactionForm({ onSubmit }: TransactionFormProps) {
           cursor: (!isFormValid || isSubmitting) ? 'not-allowed' : 'pointer'
         }}
       >
-        {isSubmitting ? 'Submitting...' : 'Submit Transaction'}
+        {isSubmitting ? 'Submitting...' : `Add ${type === 'income' ? 'Income' : 'Expense'}`}
       </button>
     </form>
   );

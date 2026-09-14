@@ -69,6 +69,7 @@ describe('TransactionForm', () => {
     fireEvent.click(submitBtn);
     expect(mockOnSubmit).toHaveBeenCalledTimes(1);
     expect(mockOnSubmit).toHaveBeenCalledWith({
+      type: 'expense',
       amount: 100,
       category: 'Food',
       date: today,
