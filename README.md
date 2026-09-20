@@ -19,53 +19,71 @@ This repository serves as a case study comparing two distinct approaches to AI-a
 * **Dynamic Budget Goals:** Features a real-time Budget Progress Bar that reacts instantly to ledger changes.
 * **Crash Protection:** Wraps the application in a custom React `ErrorBoundary` to prevent white-screen crashes from corrupted memory.
 
+## 🌐 Live Deployment
+* **Production / Preview URL:** [https://telecash-jet.vercel.app/](https://telecash-jet.vercel.app/)
+* **System Health Check:** [https://telecash-jet.vercel.app/health](https://telecash-jet.vercel.app/health)
+
 ## 🛠 Tech Stack
-* **Framework:** React + Vite
+* **Framework:** Next.js 15 (App Router, Server Components by default)
+* **Frontend Library:** React 19
 * **Language:** TypeScript
-* **Routing:** `react-router-dom`
-* **Styling:** CSS Flexbox & Grid (Vanilla)
+* **Styling:** Tailwind CSS (Design Tokens & 375px/1280px Responsive)
+* **Hosting:** Vercel
 * **Testing:** Vitest & React Testing Library
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-* Node.js (LTS version recommended)
+* Node.js (v18.18+ or LTS recommended)
 * Git
 
 ### Installation
-1. Clone the repository and checkout the precise branch:
+1. Clone the repository and checkout main:
    ```bash
-   git clone <your-repo-url>
-   git checkout feature/precise-transaction-form
+   git clone https://github.com/educ-jkescritor/capstone-project.git
+   cd capstone-project
    ```
-2. Install the dependencies:
+2. Install dependencies:
    ```bash
    npm install
    ```
-3. Start the Vite development server:
+3. Start the Next.js development server:
    ```bash
    npm run dev
    ```
-4. Open your browser to `http://localhost:5173` to view the application.
+4. Open your browser to `http://localhost:3000` to view the application.
+
+### Building for Production
+```bash
+npm run build
+npm run start
+```
 
 ## 📁 Project Architecture
 ```text
 src/
+├── app/
+│   ├── layout.tsx             # Root Server Component Layout (Navigation & Provider)
+│   ├── page.tsx               # Dashboard Route
+│   ├── ledger/page.tsx        # Transaction Ledger Route
+│   ├── add/page.tsx           # New Transaction Entry Route
+│   ├── analytics/page.tsx     # Financial Analytics & Reports Route
+│   ├── settings/page.tsx      # Preferences & Settings Route
+│   ├── health/page.tsx        # System Health Check (Server-side fetch)
+│   ├── api/health/route.ts    # Health Check API endpoint
+│   ├── globals.css            # Tailwind directives and tokens
+│   └── not-found.tsx          # Global 404 Route
 ├── components/
-│   ├── ErrorBoundary.tsx      # Global crash protection
-│   ├── Layout.tsx             # Standard Dashboard Skeleton (Mini-Sidebar)
-│   ├── StatCard.tsx           # Reusable KPI component
-│   └── TransactionForm.tsx    # Highly-validated precise input form
-├── context/
-│   └── FinanceContext.tsx     # The "Brain" (useReducer + localStorage)
-├── pages/
-│   ├── Dashboard.tsx          # Real-time KPIs & Budget Progress
-│   ├── Ledger.tsx             # Semantic transaction history table
-│   ├── AddTransaction.tsx     # Data entry view
-│   ├── Settings.tsx           # Configurable Base Currency & Budget Goals
-│   └── NotFound.tsx           # 404 Safety Net
-├── App.tsx                    # react-router-dom configuration
-└── main.tsx                   # React DOM Entry point
+│   ├── Navigation.tsx         # Responsive Sidebar (1280px) & Mobile Drawer (375px)
+│   ├── DashboardView.tsx      # KPI Stats & Budget Progress Client Component
+│   ├── LedgerView.tsx         # Transaction History Table Client Component
+│   ├── AddTransactionView.tsx # Add Transaction Form View
+│   ├── AnalyticsView.tsx      # Categorical Expense Breakdown
+│   ├── SettingsView.tsx       # Localization & Currency Settings
+│   ├── StatCard.tsx           # Reusable KPI Stat Card
+│   └── TransactionForm.tsx    # Precision-validated Form Component
+└── context/
+    └── FinanceContext.tsx     # Global State Engine (useReducer + SSR localStorage hydration)
 ```
 
 ## 📝 Assignment Documentation

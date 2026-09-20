@@ -26,3 +26,26 @@ While the AI was powerful, manual developer intervention and critical thinking w
 * **UI/UX Intervention (Mini-Sidebar):** The AI originally generated a sidebar that collapsed to `0px`. I manually intervened, instructing the AI to use a "Mini-Sidebar" (`70px`) that retains icons for a more professional SaaS aesthetic.
 * **Styling Standardization:** The AI hallucinated inconsistent inline CSS for the placeholder `Settings.tsx` page. I manually caught this discrepancy and ordered a refactor to strip the inline styles and ensure 100% uniformity across all placeholder pages.
 * **Reverting AI "Hacks" (Dark Mode):** The AI attempted to implement Dark Mode using a CSS `filter: invert(1)` hack. I identified that this destroyed the aesthetic of emojis, blue UI icons, and header hierarchy. I ordered the AI to completely revert the feature, noting that a true Dark Mode requires a dedicated Design System (like Tailwind) in the future deliverables pipeline.
+
+## 5. Live Deployment & Evaluation Deliverables
+
+### 🔗 Deliverable Links
+* **Live Vercel Preview URL:** [https://telecash-jet.vercel.app/](https://telecash-jet.vercel.app/)
+* **GitHub Repository:** [https://github.com/educ-jkescritor/capstone-project](https://github.com/educ-jkescritor/capstone-project)
+
+### ✅ Evaluation Criteria Verification
+* **Preview URL Loads with No Build Errors:** Verified on Vercel with clean `next build` static generation (8/8 routes generated with 0 errors).
+* **Every Screen from Spec Exists as a Routed Placeholder:**
+  1. [`/`](https://telecash-jet.vercel.app/) — Financial Dashboard (KPI overview, dynamic budget meter, recent activity).
+  2. [`/ledger`](https://telecash-jet.vercel.app/ledger) — Transaction Ledger (semantic table, filtering, search, delete).
+  3. [`/add`](https://telecash-jet.vercel.app/add) — New Transaction (precision form with strict client-side validation).
+  4. [`/analytics`](https://telecash-jet.vercel.app/analytics) — Financial Analytics & Reports (category expense breakdown, savings rate).
+  5. [`/settings`](https://telecash-jet.vercel.app/settings) — Preferences & Settings (currency selection, monthly budget ceiling).
+  6. [`/health`](https://telecash-jet.vercel.app/health) — **Live System Health Check** (React Server Component fetching real-time telemetry).
+  7. [`/_not-found`](https://telecash-jet.vercel.app/404) — Global 404 recovery route.
+* **Component Architecture:** Server Components by default (`app/layout.tsx`, `app/page.tsx`, `app/health/page.tsx`); Client Components only where state/interactivity is strictly required (`FinanceContext.tsx`, `TransactionForm.tsx`, `Navigation.tsx`).
+* **Responsive at 375px and 1280px:**
+  * **375px (Mobile):** Verified with mobile-friendly slide-out drawer navigation, single-column stacked KPI cards, and horizontal scroll on tables.
+  * **1280px (Desktop):** Verified with persistent desktop sidebar navigation (`w-64`), 3-column KPI card layout, and centered `max-w-6xl` containers.
+* **No Secrets in Repo:** Strict security hygiene enforced via `.env.example` template and comprehensive `.gitignore` rules preventing `.env*.local` and secrets from being tracked.
+
