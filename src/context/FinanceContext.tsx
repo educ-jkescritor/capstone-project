@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
+'use client';
+
+import React, { createContext, useContext, useReducer, ReactNode, useEffect, useState } from 'react';
 
 export type TransactionType = 'income' | 'expense';
 
@@ -24,7 +26,8 @@ type FinanceAction =
   | { type: 'ADD_TRANSACTION'; payload: Transaction }
   | { type: 'DELETE_TRANSACTION'; payload: string }
   | { type: 'SET_CURRENCY'; payload: string }
-  | { type: 'SET_BUDGET'; payload: number };
+  | { type: 'SET_BUDGET'; payload: number }
+  | { type: 'LOAD_STATE'; payload: Partial<FinanceState> };
 
 const defaultState: FinanceState = {
   transactions: [],
@@ -33,21 +36,6 @@ const defaultState: FinanceState = {
   totalExpenses: 0,
   currency: '$',
   monthlyBudget: 0,
-};
-
-// 1. Safe Initialization Logic
-const loadState = (): FinanceState => {
-  try {
-    const serializedState = localStorage.getItem('telecash_data');
-    if (serializedState === null) {
-      return defaultState;
-    }
-    const parsedState = JSON.parse(serializedState);
-    return { ...defaultState, ...parsedState };
-  } catch (err) {
-    console.error("Corrupted localStorage data found. Reverting to default state.", err);
-    return defaultState;
-  }
 };
 
 const calculateTotals = (transactions: Transaction[]) => {
@@ -87,6 +75,16 @@ function financeReducer(state: FinanceState, action: FinanceAction): FinanceStat
     case 'SET_BUDGET': {
       return { ...state, monthlyBudget: action.payload };
     }
+    case 'LOAD_STATE': {
+      const transactions = action.payload.transactions || state.transactions;
+      const totals = calculateTotals(transactions);
+      return {
+        ...state,
+        ...action.payload,
+        transactions,
+        ...totals,
+      };
+    }
     default:
       return state;
   }
@@ -95,24 +93,41 @@ function financeReducer(state: FinanceState, action: FinanceAction): FinanceStat
 const FinanceContext = createContext<{
   state: FinanceState;
   dispatch: React.Dispatch<FinanceAction>;
+  isHydrated: boolean;
 } | undefined>(undefined);
 
 export function FinanceProvider({ children }: { children: ReactNode }) {
-  // Initialize state from localStorage instead of the empty defaultState
-  const [state, dispatch] = useReducer(financeReducer, loadState());
+  const [state, dispatch] = useReducer(financeReducer, defaultState);
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  // 2. Data Persistence Logic: Save to localStorage every time the state changes
+  // Safe client-side hydration from localStorage
   useEffect(() => {
+    try {
+      const serializedState = localStorage.getItem('telecash_data');
+      if (serializedState) {
+        const parsedState = JSON.parse(serializedState);
+        dispatch({ type: 'LOAD_STATE', payload: parsedState });
+      }
+    } catch (err) {
+      console.error('Failed to load localStorage data:', err);
+    } finally {
+      setIsHydrated(true);
+    }
+  }, []);
+
+  // Save to localStorage when state updates post-hydration
+  useEffect(() => {
+    if (!isHydrated) return;
     try {
       const serializedState = JSON.stringify(state);
       localStorage.setItem('telecash_data', serializedState);
     } catch (err) {
-      console.error("Failed to save data to localStorage.", err);
+      console.error('Failed to save data to localStorage:', err);
     }
-  }, [state]);
+  }, [state, isHydrated]);
 
   return (
-    <FinanceContext.Provider value={{ state, dispatch }}>
+    <FinanceContext.Provider value={{ state, dispatch, isHydrated }}>
       {children}
     </FinanceContext.Provider>
   );

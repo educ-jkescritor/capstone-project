@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { useFinance } from '../context/FinanceContext';
 
@@ -9,25 +11,30 @@ interface StatCardProps {
 
 export default function StatCard({ title, amount, type }: StatCardProps) {
   const { state } = useFinance();
-  
-  let color = '#1f2937'; // Default dark grey for balance
-  if (type === 'income') color = '#059669'; // Green
-  if (type === 'expense') color = '#dc2626'; // Red
+
+  const colorStyles = {
+    income: 'text-emerald-600 bg-emerald-50 border-emerald-200',
+    expense: 'text-red-600 bg-red-50 border-red-200',
+    balance: 'text-gray-900 bg-white border-gray-200',
+  };
+
+  const badgeStyles = {
+    income: 'bg-emerald-100 text-emerald-800',
+    expense: 'bg-red-100 text-red-800',
+    balance: 'bg-gray-100 text-gray-700',
+  };
 
   return (
-    <div style={{
-      backgroundColor: '#ffffff',
-      padding: '1.5rem',
-      borderRadius: '8px',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '0.5rem'
-    }}>
-      <h3 style={{ margin: 0, fontSize: '0.875rem', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-        {title}
-      </h3>
-      <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color }}>
+    <div className={`p-5 rounded-xl border bg-white shadow-sm transition-all hover:shadow-md ${colorStyles[type]}`}>
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+          {title}
+        </h3>
+        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${badgeStyles[type]}`}>
+          {type === 'income' ? 'Cash In' : type === 'expense' ? 'Cash Out' : 'Net'}
+        </span>
+      </div>
+      <p className="text-2xl sm:text-3xl font-bold tracking-tight">
         {state.currency}{amount.toFixed(2)}
       </p>
     </div>

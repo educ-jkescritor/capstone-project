@@ -1,6 +1,25 @@
+# Dependencies
 node_modules/
-dist/
-.env
-.DS_Store
+/.pnp
+.pnp.js
+
+# Testing & Coverage
 coverage/
 *.log
+
+# Next.js & Production Build
+.next/
+out/
+build/
+dist/
+
+# Environment Variables & Secrets (Evaluation criteria: No secrets in repo)
+.env
+.env*.local
+.env.production
+.env.staging
+
+# OS files
+.DS_Store
+*.pem
+Thumbs.db
