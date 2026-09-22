@@ -21,7 +21,65 @@ This repository serves as a case study comparing two distinct approaches to AI-a
 
 ## 🌐 Live Deployment
 * **Production / Preview URL:** [https://telecash-jet.vercel.app/](https://telecash-jet.vercel.app/)
+* **AI Financial Advisor:** [https://telecash-jet.vercel.app/advisor](https://telecash-jet.vercel.app/advisor)
 * **System Health Check:** [https://telecash-jet.vercel.app/health](https://telecash-jet.vercel.app/health)
+
+## 🤖 AI Tool Contract: `calculateBudgetImpact`
+
+Telecash features server-side AI tool calling built with the **Vercel AI SDK** and **Zod**. When users ask natural language questions regarding purchases or financial feasibility, the AI invokes the `calculateBudgetImpact` tool and streams the typed tool lifecycle into a Generative UI **Budget Impact Score Card**.
+
+* **Tool Definition File:** [`src/lib/tools/budget-impact.ts`](./src/lib/tools/budget-impact.ts)
+
+### 1. Zod Input Schema
+```ts
+export const budgetImpactInputSchema = z.object({
+  expenseAmount: z
+    .number()
+    .describe('The proposed expense amount in dollars to evaluate against the budget'),
+  category: z
+    .string()
+    .describe('The category of the expense (e.g., Food & Dining, Tech, Entertainment)'),
+  description: z
+    .string()
+    .optional()
+    .describe('Optional item or merchant description'),
+  simulateError: z
+    .boolean()
+    .optional()
+    .describe('Flag to trigger a test validation error for verifying error states'),
+});
+```
+
+### 2. Output Return Shape
+```ts
+export interface BudgetImpactResult {
+  proposedAmount: number;
+  category: string;
+  description: string;
+  currentBudget: number;
+  currentTotalExpenses: number;
+  currentUtilizationPercent: number;
+  projectedTotalExpenses: number;
+  projectedUtilizationPercent: number;
+  deltaPercent: number;
+  remainingBudgetAfterExpense: number;
+  riskLevel: 'safe' | 'warning' | 'critical';
+  verdict: string;
+  actionableAdvice: string;
+  breakdown: {
+    isOverBudget: boolean;
+    exceededByAmount: number;
+    dailyAllowanceRemaining: number;
+  };
+}
+```
+
+### 3. Tool Lifecycle States (Generative UI)
+The UI strictly renders all four tool part states without dumping raw JSON:
+1. **`input-streaming`:** Animated radar pulse and shimmer loader (*"Analyzing financial inquiry & extracting parameters..."*).
+2. **`input-available`:** Badge displaying extracted arguments (`$Amount` & `Category`) while computing.
+3. **`output-available`:** Interactive **Budget Impact Score Card** with a hand-rolled SVG comparison chart, risk indicator, and a one-click *"Log to Ledger"* confirmation button.
+4. **`output-error`:** Designed amber/red error alert with recovery suggestions and retry options.
 
 ## 🛠 Tech Stack
 * **Framework:** Next.js 15 (App Router, Server Components by default)
@@ -65,11 +123,13 @@ src/
 ├── app/
 │   ├── layout.tsx             # Root Server Component Layout (Navigation & Provider)
 │   ├── page.tsx               # Dashboard Route
+│   ├── advisor/page.tsx       # AI Advisor Route (Generative UI Chat)
 │   ├── ledger/page.tsx        # Transaction Ledger Route
 │   ├── add/page.tsx           # New Transaction Entry Route
 │   ├── analytics/page.tsx     # Financial Analytics & Reports Route
 │   ├── settings/page.tsx      # Preferences & Settings Route
 │   ├── health/page.tsx        # System Health Check (Server-side fetch)
+│   ├── api/chat/route.ts      # AI Streaming & Tool Calling Route
 │   ├── api/health/route.ts    # Health Check API endpoint
 │   ├── globals.css            # Tailwind directives and tokens
 │   └── not-found.tsx          # Global 404 Route
@@ -81,7 +141,12 @@ src/
 │   ├── AnalyticsView.tsx      # Categorical Expense Breakdown
 │   ├── SettingsView.tsx       # Localization & Currency Settings
 │   ├── StatCard.tsx           # Reusable KPI Stat Card
-│   └── TransactionForm.tsx    # Precision-validated Form Component
+│   ├── TransactionForm.tsx    # Precision-validated Form Component
+│   ├── ChatAssistant.tsx      # Generative UI Chat Interface
+│   └── BudgetImpactCard.tsx   # 4-State Generative UI Component with SVG Chart
+├── lib/
+│   └── tools/
+│       └── budget-impact.ts   # Zod-defined Tool & Affordability Computation
 └── context/
     └── FinanceContext.tsx     # Global State Engine (useReducer + SSR localStorage hydration)
 ```

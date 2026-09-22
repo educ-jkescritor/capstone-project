@@ -12,6 +12,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/', icon: '📊' },
+  { label: 'AI Advisor', href: '/advisor', icon: '🤖' },
   { label: 'Ledger', href: '/ledger', icon: '📖' },
   { label: 'New Transaction', href: '/add', icon: '➕' },
   { label: 'Analytics', href: '/analytics', icon: '📈' },
@@ -59,6 +60,13 @@ export default function Navigation({ children }: { children: React.ReactNode }) 
 
         {/* User Badge / Health Indicator */}
         <div className="flex items-center gap-3">
+          <Link
+            href="/advisor"
+            className="flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-full bg-brand-600 hover:bg-brand-700 text-white font-semibold transition shadow-sm"
+          >
+            <span>🤖</span>
+            <span>Ask AI</span>
+          </Link>
           <Link
             href="/health"
             className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-full bg-gray-800 text-emerald-400 hover:bg-gray-700 transition"

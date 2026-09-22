@@ -49,3 +49,25 @@ While the AI was powerful, manual developer intervention and critical thinking w
   * **1280px (Desktop):** Verified with persistent desktop sidebar navigation (`w-64`), 3-column KPI card layout, and centered `max-w-6xl` containers.
 * **No Secrets in Repo:** Strict security hygiene enforced via `.env.example` template and comprehensive `.gitignore` rules preventing `.env*.local` and secrets from being tracked.
 
+## 6. Phase: Build (Core) — AI Tool Calling & Generative UI Deliverables
+
+### 🔗 Deliverables Summary
+* **Live Tool Preview URL:** [https://telecash-jet.vercel.app/advisor](https://telecash-jet.vercel.app/advisor)
+* **Tool Definition File:** [`src/lib/tools/budget-impact.ts`](./src/lib/tools/budget-impact.ts)
+* **Generative UI Component:** [`src/components/BudgetImpactCard.tsx`](./src/components/BudgetImpactCard.tsx)
+* **AI API Route:** [`src/app/api/chat/route.ts`](./src/app/api/chat/route.ts)
+
+### ✅ Rubric & Evaluation Criteria Fulfillment
+1. **Tool Defined with a Typed Schema:**
+   * Built with Zod (`budgetImpactInputSchema`), enforcing numeric `expenseAmount`, string `category`, optional `description`, and `simulateError`.
+2. **All Four Tool Part States Render Distinctly:**
+   * **State 1 (`input-streaming`):** Animated radar spinner & shimmer bar answering *"What is it doing?"*.
+   * **State 2 (`input-available`):** Parameter inspector badge with extracted values answering *"With what input?"*.
+   * **State 3 (`output-available`):** Live **Budget Impact Score Card** answering *"What came back?"* with risk badges and remaining allowance.
+   * **State 4 (`output-error`):** Designed error alert card answering *"What went wrong?"* with recovery guidance (never a raw JSON crash).
+3. **Tool Result Renders as a Real Component (Not Text):**
+   * Features a custom, hand-rolled SVG comparison bar chart, 3-metric statistical breakdown grid, and a one-click *"Log to Ledger"* user-confirmation action.
+4. **Failed Tool Execution Shows a Designed Error State:**
+   * Tested via negative values or simulated error triggers; gracefully caught and displayed inside the custom error state card.
+
+

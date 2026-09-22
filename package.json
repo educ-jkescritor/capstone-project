@@ -25,7 +25,11 @@
     "next": "^15.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.18.3"
+    "react-router-dom": "^7.18.3",
+    "ai": "^4.1.45",
+    "@ai-sdk/react": "^1.1.15",
+    "@ai-sdk/openai": "^1.1.9",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^7.0.1",

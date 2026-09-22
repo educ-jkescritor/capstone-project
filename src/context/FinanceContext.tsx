@@ -35,7 +35,7 @@ const defaultState: FinanceState = {
   totalIncome: 0,
   totalExpenses: 0,
   currency: '$',
-  monthlyBudget: 0,
+  monthlyBudget: 2000,
 };
 
 const calculateTotals = (transactions: Transaction[]) => {
@@ -90,6 +90,34 @@ function financeReducer(state: FinanceState, action: FinanceAction): FinanceStat
   }
 }
 
+// Lazy initial state loader: reads directly from localStorage on client mount
+const loadInitialState = (initial: FinanceState): FinanceState => {
+  if (typeof window === 'undefined') {
+    return initial;
+  }
+  try {
+    const serializedState = localStorage.getItem('telecash_data');
+    if (serializedState) {
+      const parsed = JSON.parse(serializedState);
+      const transactions = parsed.transactions || [];
+      const totals = calculateTotals(transactions);
+      return {
+        ...initial,
+        ...parsed,
+        transactions,
+        ...totals,
+        monthlyBudget:
+          typeof parsed.monthlyBudget === 'number' && parsed.monthlyBudget > 0
+            ? parsed.monthlyBudget
+            : 2000,
+      };
+    }
+  } catch (err) {
+    console.error('Failed to load localStorage data:', err);
+  }
+  return initial;
+};
+
 const FinanceContext = createContext<{
   state: FinanceState;
   dispatch: React.Dispatch<FinanceAction>;
@@ -97,37 +125,26 @@ const FinanceContext = createContext<{
 } | undefined>(undefined);
 
 export function FinanceProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(financeReducer, defaultState);
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [state, dispatch] = useReducer(financeReducer, defaultState, loadInitialState);
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Safe client-side hydration from localStorage
   useEffect(() => {
-    try {
-      const serializedState = localStorage.getItem('telecash_data');
-      if (serializedState) {
-        const parsedState = JSON.parse(serializedState);
-        dispatch({ type: 'LOAD_STATE', payload: parsedState });
-      }
-    } catch (err) {
-      console.error('Failed to load localStorage data:', err);
-    } finally {
-      setIsHydrated(true);
-    }
+    setIsMounted(true);
   }, []);
 
-  // Save to localStorage when state updates post-hydration
+  // Save to localStorage only after component has mounted and when state changes
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isMounted) return;
     try {
       const serializedState = JSON.stringify(state);
       localStorage.setItem('telecash_data', serializedState);
     } catch (err) {
       console.error('Failed to save data to localStorage:', err);
     }
-  }, [state, isHydrated]);
+  }, [state, isMounted]);
 
   return (
-    <FinanceContext.Provider value={{ state, dispatch, isHydrated }}>
+    <FinanceContext.Provider value={{ state, dispatch, isHydrated: isMounted }}>
       {children}
     </FinanceContext.Provider>
   );
